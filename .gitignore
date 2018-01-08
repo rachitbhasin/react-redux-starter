@@ -1,0 +1,16 @@
+// Node error logs
+npm-debug.log
+
+// Third party dependencies
+node_modules*
+
+# Ignore distribution files
+dist/js/*
+dist/css/*
+dist/
+
+# IDE files
+.idea/
+
+// Test coverage files
+coverage
