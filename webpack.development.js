@@ -1,6 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const webpack = require('webpack');
 
 // HTML
@@ -11,12 +11,13 @@ const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
 });
 
 // css
-const ExtractTextPluginConfig = new ExtractTextPlugin({
+const MiniCssExtractPluginConfig = new MiniCssExtractPlugin({
     filename: '[name].bundle.[hash:10].css',
     allChunks: true
 });
 
 module.exports = {
+    mode: 'development',
     entry: ['./src/js/index.js','./src/scss/index.scss'],
     output: {
         path: path.resolve(__dirname, "dist"),
@@ -26,15 +27,16 @@ module.exports = {
     },
     devtool: 'cheap-module-eval-source-map',
     module: {
-        loaders: [
+        rules: [
             { test: /\.js$/, use: 'babel-loader', exclude: /node_modules/ },
             { test: /\.jsx$/, use: 'babel-loader', exclude: /node_modules/ },
             {
-                test: /\.scss$/,
-                use: ExtractTextPlugin.extract({
-                    fallback: 'style-loader',
-                    use: ['css-loader','sass-loader']
-                })
+                test: /\.(sa|sc|c)ss$/,
+                use: [
+                  'style-loader',
+                  'css-loader',
+                  'sass-loader',
+                ],
             },
             {
                 test: /\.(gif|png|jpe?g|svg)$/i,
@@ -58,11 +60,13 @@ module.exports = {
     },
     plugins: [
         HtmlWebpackPluginConfig,
-        ExtractTextPluginConfig,
-        new webpack.NamedModulesPlugin(),
+        MiniCssExtractPluginConfig,
         new webpack.HotModuleReplacementPlugin(),
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify('development')
         })
-    ]
+    ],
+    optimization: {
+        namedModules: true, // NamedModulesPlugin()
+    }
 };

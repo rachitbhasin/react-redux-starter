@@ -1,6 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const webpack = require('webpack');
 
 // HTML
@@ -9,41 +10,33 @@ const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
     filename: 'index.html',
     inject: 'body',
     minify: {
-        collapseWhitespace: true,
-        collapseInlineTagWhitespace: true,
         removeComments: true,
-        removeRedundantAttributes: true
+        collapseWhitespace: true,
+        removeRedundantAttributes: true,
+        useShortDoctype: true,
+        removeEmptyAttributes: true,
+        removeStyleLinkTypeAttributes: true,
+        keepClosingSlash: true,
+        minifyJS: true,
+        minifyCSS: true,
+        minifyURLs: true,
     }
 });
 
 // Uglify Javascript
-const UglifyJsPluginConfig = new webpack.optimize.UglifyJsPlugin({
+const UglifyJsPluginConfig = new UglifyJsPlugin({
     sourceMap: true,   // enable source maps to map errors (stack traces) to modules
-    uglifyOptions: {
-        compress: true
-    },
-    output: {
-        comments: false // remove all comments
-    }
+    parallel: true     // Use multi-process parallel running to improve the build speed
 });
 
 // css
-const ExtractTextPluginConfig = new ExtractTextPlugin({
+const MiniCssExtractPluginConfig = new MiniCssExtractPlugin({
     filename: '[name].bundle.[chunkhash:10].css',
     allChunks: true
 });
 
-// Create separate bundle for the node_modules
-const CommonsChunkPluginConfig = new webpack.optimize.CommonsChunkPlugin({
-    name: 'vendor',
-    filename: 'vendor.[chunkhash:10].js',
-    minChunks (module) {
-        return module.context &&
-            module.context.indexOf('node_modules') >= 0;
-    }
-});
-
 module.exports = {
+    mode: 'production',
     entry: ['./src/js/index.js','./src/scss/index.scss'],
     output: {
         path: path.resolve(__dirname, "dist"),
@@ -53,7 +46,7 @@ module.exports = {
     },
     devtool: 'hidden-source-map',
     module: {
-        loaders: [
+        rules: [
             {
                 test: /\.js$/,
                 use: 'babel-loader',
@@ -65,11 +58,12 @@ module.exports = {
                 exclude: /node_modules/
             },
             {
-                test: /\.scss$/,
-                use: ExtractTextPlugin.extract({
-                    fallback: 'style-loader',
-                    use: ['css-loader','sass-loader']
-                })
+                test: /\.(sa|sc|c)ss$/,
+                use: [
+                  MiniCssExtractPlugin.loader,
+                  'css-loader',
+                  'sass-loader',
+                ],
             },
             {
                 test: /\.(gif|png|jpe?g|svg)$/i,
@@ -87,14 +81,26 @@ module.exports = {
         ]
     },
     plugins: [
-        CommonsChunkPluginConfig,
-        UglifyJsPluginConfig,
-        new webpack.optimize.ModuleConcatenationPlugin(),
         HtmlWebpackPluginConfig,
-        ExtractTextPluginConfig,
-        new webpack.NamedModulesPlugin(),
+        MiniCssExtractPluginConfig,
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify(`${process.env.NODE_ENV}`)
         })
-    ]
+    ],
+    optimization: {
+        namedModules: true, // NamedModulesPlugin()
+        splitChunks: { // CommonsChunkPlugin()
+            name: 'vendor',
+            filename: 'vendor.[chunkhash:10].js',
+            chunks (module) {
+                return module.context &&
+                    module.context.indexOf('node_modules') >= 0;
+            }
+        },
+        concatenateModules: true, //ModuleConcatenationPlugin
+        minimizer: [
+            UglifyJsPluginConfig
+        ]
+        
+    }
 };
