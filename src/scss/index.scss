@@ -1,3 +1,22 @@
+body {
+	margin: 0;
+}
+
+.header-container {
+	display: flex;
+	height: 50px;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 32px;
+    padding-right: 32px;
+}
+
+a, a:link, a:visited, a:focus, a:hover, a:active{
+  color:white;
+  text-decoration:none; 
+  cursor: pointer;
+}
+
 .background-blue {
-    background: blue;
+    background: #3f51b5;
 }

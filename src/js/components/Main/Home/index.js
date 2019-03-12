@@ -5,7 +5,7 @@ import { updateQuery } from './actionCreators';
 
 const mapStateToProps = (state, ownProps) => {
     return {
-        names: state.home.names,
+       	names: state.home.names,
         query: state.home.query
     }
 };

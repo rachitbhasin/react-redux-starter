@@ -8,7 +8,7 @@ import App from './components';
 render((
     <BrowserRouter>
         <Provider store={ store }>
-            <App/>
+            <App />
         </Provider>
     </BrowserRouter>
 ), document.getElementById('app'));

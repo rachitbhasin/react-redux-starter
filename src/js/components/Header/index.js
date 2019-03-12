@@ -3,11 +3,9 @@ import { Link } from 'react-router-dom'
 
 const Header = () => (
   <header>
-    <nav className="background-blue">
-      <ul>
-        <li><Link to='/'>Home</Link></li>
-        <li><Link to='/about'>About</Link></li>
-      </ul>
+    <nav className="header-container background-blue">
+      <div><Link to='/'>Home</Link></div>
+      <div><Link to='/about'>About</Link></div>
     </nav>
   </header>
 )
